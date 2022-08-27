@@ -27,3 +27,24 @@ running the game.
 ```powershell
 $ python main.py
 ```
+
+<br>
+
+## Normal Setup
+
+<br>
+
+creating virtual enviroment and installing dependencies
+
+```powershell
+$ mkdir .venv
+$ pipenv install
+```
+
+<br>
+
+running the game.
+
+```powershell
+$ pipenv run python main.py
+```
