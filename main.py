@@ -1,13 +1,16 @@
 import pygame, sys
+from src.player import Player
 
 class Game:
-    def __init__(self):
+    def __init__(self, player_pos: tuple[int, int], screen_width: int) -> None:
         """initialize all the game objects"""
-        pass
+        player_sprite = Player("graphics/player.png", player_pos, screen_width, 5)
+        self.player = pygame.sprite.GroupSingle(player_sprite)
 
-    def run(self):
+    def run(self, screen: pygame.Surface) -> None:
         """update and draw all sprite groups, will run every game loop"""
-        pass
+        self.player.update()
+        self.player.draw(screen)
 
 def main() -> int:
     # initializing pygame
@@ -22,7 +25,7 @@ def main() -> int:
     clock = pygame.time.Clock()
 
     # creating a game instance
-    game = Game()
+    game = Game((screen_width / 2, screen_height), screen_width)
 
     while True:
         for event in pygame.event.get():
@@ -35,7 +38,7 @@ def main() -> int:
         screen.fill((30, 30, 30))
 
         # running all the game draw and update logic
-        game.run()
+        game.run(screen)
 
         # displaying it on screen
         pygame.display.flip()
