@@ -1,5 +1,14 @@
 import pygame, sys
 
+class Game:
+    def __init__(self):
+        """initialize all the game objects"""
+        pass
+
+    def run(self):
+        """update and draw all sprite groups, will run every game loop"""
+        pass
+
 def main() -> int:
     # initializing pygame
     pygame.init()
@@ -12,6 +21,9 @@ def main() -> int:
     screen: pygame.Surface = pygame.display.set_mode((screen_width, screen_height))
     clock = pygame.time.Clock()
 
+    # creating a game instance
+    game = Game()
+
     while True:
         for event in pygame.event.get():
             # checking for exit event
@@ -21,6 +33,9 @@ def main() -> int:
         
         # giving a simple background color
         screen.fill((30, 30, 30))
+
+        # running all the game draw and update logic
+        game.run()
 
         # displaying it on screen
         pygame.display.flip()
