@@ -1,4 +1,5 @@
 import pygame
+from .laser import Laser
 
 class Player(pygame.sprite.Sprite):
     """Player class inheriting from pygame.sprite.Sprite"""
@@ -14,13 +15,16 @@ class Player(pygame.sprite.Sprite):
         self.laser_time: int = 0
         self.laser_cooldown: int = 600
 
+        # laser sprite group
+        self.lasers: pygame.sprite.Group = pygame.sprite.Group()
+
     def get_input(self) -> None:
         """getting player input"""
         keys =  pygame.key.get_pressed()
 
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.rect.x += self.speed
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.rect.x -= self.speed
 
         if keys[pygame.K_SPACE] and self.ready:
@@ -43,12 +47,18 @@ class Player(pygame.sprite.Sprite):
             self.rect.right = self.max_x_constraint
 
     def shoot_laser(self):
-        print('shoot laser')
+        self.lasers.add(Laser(self.rect.bottom, self.rect.midtop, -8))
 
     def update(self) -> None:
         """Includes all the update logic of the player"""
+
+        # get player input
         self.get_input()
+
+        # apply screen constraints to character
         self.constraint()
+
+        # recharge after laser is fired
         self.recharge()
 
         

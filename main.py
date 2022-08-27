@@ -9,7 +9,10 @@ class Game:
 
     def run(self, screen: pygame.Surface) -> None:
         """update and draw all sprite groups, will run every game loop"""
+        self.player.sprite.lasers.update()
         self.player.update()
+
+        self.player.sprite.lasers.draw(screen)
         self.player.draw(screen)
 
 def main() -> int:
