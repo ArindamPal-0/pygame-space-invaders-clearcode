@@ -8,6 +8,8 @@ from src.laser import Laser
 class Game:
     def __init__(self, player_pos: tuple[int, int], screen_width: int) -> None:
         """initialize all the game objects"""
+        self.game_over = False
+
         # Player setup
         player_sprite = Player("graphics/player.png", player_pos, screen_width, 5)
         self.player = pygame.sprite.GroupSingle(player_sprite)
@@ -77,20 +79,62 @@ class Game:
             laser_sprite = Laser(screen_height, random_alien.rect.midtop, 6)
             self.alien_lasers.add(laser_sprite)
 
-    def extra_alien_timer(self, screen_width: int):
+    def extra_alien_timer(self, screen_width: int) -> None:
         self.extra_spawn_time -= 1
         if self.extra_spawn_time <= 0:
             self.extra.add(Extra("./graphics/extra.png", random.choice(["right", "left"]), screen_width))
             self.extra_spawn_time = random.randint(400, 800)
 
-    def run(self, screen: pygame.Surface) -> None:
+
+    def collision_checks(self):
+        # player lasers
+        for laser in self.player.sprite.lasers:
+            # obstacle collisiosn
+            if pygame.sprite.spritecollide(laser, self.blocks, True):
+                laser.kill()
+
+            # alien collisions
+            if pygame.sprite.spritecollide(laser, self.aliens, True):
+                laser.kill()
+
+            # extra collisions
+            if pygame.sprite.spritecollide(laser, self.extra, True):
+                laser.kill()
+
+        # alien lasers
+        for laser in self.alien_lasers:
+            # obstacle collisiosn
+            if pygame.sprite.spritecollide(laser, self.blocks, True):
+                laser.kill()
+
+            # player collision
+            if pygame.sprite.spritecollide(laser, self.player, False):
+                laser.kill()
+                print('hit')
+
+        # aliens
+        for alien in self.aliens:
+            # destroy obstacle on collision
+            pygame.sprite.spritecollide(alien, self.blocks, True)
+
+            if pygame.sprite.spritecollide(alien, self.player, False):
+                self.game_over = True
+
+
+
+            
+
+
+    def run(self, screen: pygame.Surface) -> bool:
         """update and draw all sprite groups, will run every game loop"""
         self.player.update()
+        self.player.sprite.lasers.update()
         self.alien_position_checker(screen.get_rect().right)
         self.aliens.update(self.alien_direction)
         self.alien_lasers.update()
         self.extra_alien_timer(screen.get_rect().right)
         self.extra.update()
+        self.collision_checks()
 
         self.player.sprite.lasers.draw(screen)
         self.player.draw(screen)
@@ -99,6 +143,8 @@ class Game:
         self.aliens.draw(screen)
         self.alien_lasers.draw(screen)
         self.extra.draw(screen)
+
+        return self.game_over
 
 def main() -> int:
     # initializing pygame
@@ -119,7 +165,8 @@ def main() -> int:
     ALIEN_LASER: int = pygame.USEREVENT + 1
     pygame.time.set_timer(ALIEN_LASER, 800)
 
-    while True:
+    game_over = False
+    while not game_over:
         for event in pygame.event.get():
             # checking for exit event
             if event.type == pygame.QUIT:
@@ -133,13 +180,16 @@ def main() -> int:
         screen.fill((30, 30, 30))
 
         # running all the game draw and update logic
-        game.run(screen)
+        game_over = game.run(screen)
 
         # displaying it on screen
         pygame.display.flip()
 
         # used to limit the framerate to 60 Hz
         clock.tick(60)
+
+        if game_over:
+            pygame.quit()
 
     return 0
 
