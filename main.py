@@ -172,6 +172,25 @@ class Game:
 
         return self.game_over
 
+
+class CRT:
+    def __init__(self, screen_width: int, screen_height: int) -> None:
+        self.tv: pygame.Surface = pygame.image.load("graphics/tv.png").convert_alpha()
+        self.tv = pygame.transform.scale(self.tv, (screen_width, screen_height))
+
+    def create_crt_lines(self, screen_width: int, screen_height: int) -> None:
+        line_height = 3
+        line_amount = int(screen_height / line_height)
+        for line in range(line_amount):
+            y_pos: int = line * line_height
+            pygame.draw.line(self.tv, "black", (0, y_pos), (screen_width, y_pos), 1)
+
+    def draw(self, screen: pygame.Surface) -> None:
+        self.tv.set_alpha(random.randint(75, 90))
+        self.create_crt_lines(*screen.get_size())
+        screen.blit(self.tv, (0, 0))
+
+
 def main() -> int:
     # initializing pygame
     pygame.init()
@@ -186,6 +205,7 @@ def main() -> int:
 
     # creating a game instance
     game = Game((screen_width / 2, screen_height), screen_width)
+    crt = CRT(screen_width, screen_height)
 
     # alien shoot event timer
     ALIEN_LASER: int = pygame.USEREVENT + 1
@@ -207,6 +227,7 @@ def main() -> int:
 
         # running all the game draw and update logic
         game_over = game.run(screen)
+        crt.draw(screen)
 
         # displaying it on screen
         pygame.display.flip()
