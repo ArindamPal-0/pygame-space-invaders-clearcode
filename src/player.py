@@ -3,7 +3,7 @@ from .laser import Laser
 
 class Player(pygame.sprite.Sprite):
     """Player class inheriting from pygame.sprite.Sprite"""
-    def __init__(self, image_path: str, pos: tuple[int, int], constraint: int, speed: int) -> None:
+    def __init__(self, image_path: str, laser_sound: pygame.mixer.Sound, pos: tuple[int, int], constraint: int, speed: int) -> None:
         super().__init__()
         self.image: pygame.Surface = pygame.image.load(image_path).convert_alpha()
         self.rect: pygame.Rect = self.image.get_rect(midbottom = pos)
@@ -17,6 +17,9 @@ class Player(pygame.sprite.Sprite):
 
         # laser sprite group
         self.lasers: pygame.sprite.Group = pygame.sprite.Group()
+
+        # setting laser audio
+        self.laserSound = laser_sound
 
     def get_input(self) -> None:
         """getting player input"""
@@ -48,6 +51,7 @@ class Player(pygame.sprite.Sprite):
 
     def shoot_laser(self):
         self.lasers.add(Laser(self.rect.bottom, self.rect.midtop, -8))
+        self.laserSound.play()
 
     def update(self) -> None:
         """Includes all the update logic of the player"""

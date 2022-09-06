@@ -1,3 +1,4 @@
+from asyncore import loop
 import pygame, sys
 from src.player import Player
 from src import obstacle
@@ -10,8 +11,19 @@ class Game:
         """initialize all the game objects"""
         self.game_over = False
 
+        # Audio
+        music = pygame.mixer.Sound("audio/music.wav")
+        music.set_volume(0.02)
+        music.play(loops=-1)
+
+        self.laserSound = pygame.mixer.Sound("audio/laser.wav")
+        self.laserSound.set_volume(0.02)
+
+        self.explosionSound = pygame.mixer.Sound("audio/explosion.wav")
+        self.explosionSound.set_volume(0.08)
+
         # Player setup
-        player_sprite = Player("graphics/player.png", player_pos, screen_width, 5)
+        player_sprite = Player("graphics/player.png", self.laserSound, player_pos, screen_width, 5)
         self.player = pygame.sprite.GroupSingle(player_sprite)
 
         # health and score setup
@@ -39,6 +51,7 @@ class Game:
         # Extra Alien setup
         self.extra = pygame.sprite.GroupSingle()
         self.extra_spawn_time = random.randint(400, 800)
+
 
     def create_obstacle(self, x_start: int, y_start: int, offset_x: int) -> None:
         for row, row_value in enumerate(self.shape):
@@ -86,6 +99,7 @@ class Game:
             random_alien: Alien = random.choice(self.aliens.sprites())
             laser_sprite = Laser(screen_height, random_alien.rect.midtop, 6)
             self.alien_lasers.add(laser_sprite)
+            self.laserSound.play()
 
     def extra_alien_timer(self, screen_width: int) -> None:
         self.extra_spawn_time -= 1
@@ -107,11 +121,13 @@ class Game:
                 for alien in aliens_hit:
                     self.score += alien.value
                 laser.kill()
+                self.explosionSound.play()
 
             # extra collisions
             if pygame.sprite.spritecollide(laser, self.extra, True):
                 laser.kill()
                 self.score += 500
+                self.explosionSound.play()
 
         # alien lasers
         for laser in self.alien_lasers:
