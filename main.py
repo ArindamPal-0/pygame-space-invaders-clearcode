@@ -164,6 +164,13 @@ class Game:
         screen.blit(score_surface, score_rect)
 
 
+    def victory_message(self, screen: pygame.Surface) -> None:
+        if not self.aliens.sprites():
+            victory_surface: pygame.Surface = self.font.render("YOU WON", False, 'white')
+            victory_rect: pygame.Rect =  victory_surface.get_rect(center=(screen.get_size()[0] / 2, screen.get_size()[1] / 2))
+            screen.blit(victory_surface, victory_rect)
+
+
     def run(self, screen: pygame.Surface) -> bool:
         """update and draw all sprite groups, will run every game loop"""
         self.player.update()
@@ -185,6 +192,7 @@ class Game:
         self.extra.draw(screen)
         self.display_lives(screen)
         self.display_score(screen)
+        self.victory_message(screen)
 
         return self.game_over
 
