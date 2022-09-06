@@ -19,6 +19,9 @@ class Game:
         self.lives_surface: pygame.Surface = pygame.image.load("graphics/player.png").convert_alpha()
         self.lives_x_start_pos: int = screen_width - (self.lives_surface.get_size()[0] * 2 + 20)
 
+        self.score: int = 0
+        self.font = pygame.font.Font("font/Pixeled.ttf", 20)
+
         # obstacle setup
         self.shape: list[str] = obstacle.shape
         self.block_size = 6
@@ -99,12 +102,16 @@ class Game:
                 laser.kill()
 
             # alien collisions
-            if pygame.sprite.spritecollide(laser, self.aliens, True):
+            aliens_hit: list[Alien] = pygame.sprite.spritecollide(laser, self.aliens, True)
+            if aliens_hit:
+                for alien in aliens_hit:
+                    self.score += alien.value
                 laser.kill()
 
             # extra collisions
             if pygame.sprite.spritecollide(laser, self.extra, True):
                 laser.kill()
+                self.score += 500
 
         # alien lasers
         for laser in self.alien_lasers:
@@ -135,17 +142,23 @@ class Game:
             screen.blit(self.lives_surface, (x, 8))
 
 
+    def display_score(self, screen: pygame.Surface) -> None:
+        score_surface: pygame.Surface = self.font.render(f"score: {self.score}", False, 'white')
+        score_rect: pygame.Rect = score_surface.get_rect(topleft = (10, -10))
+        screen.blit(score_surface, score_rect)
+
+
     def run(self, screen: pygame.Surface) -> bool:
         """update and draw all sprite groups, will run every game loop"""
         self.player.update()
         self.player.sprite.lasers.update()
-        self.alien_position_checker(screen.get_rect().right)
+        self.extra.update()
         self.aliens.update(self.alien_direction)
         self.alien_lasers.update()
+
+        self.alien_position_checker(screen.get_rect().right)
         self.extra_alien_timer(screen.get_rect().right)
-        self.extra.update()
         self.collision_checks()
-        self.display_lives(screen)
 
         self.player.sprite.lasers.draw(screen)
         self.player.draw(screen)
@@ -154,6 +167,8 @@ class Game:
         self.aliens.draw(screen)
         self.alien_lasers.draw(screen)
         self.extra.draw(screen)
+        self.display_lives(screen)
+        self.display_score(screen)
 
         return self.game_over
 
